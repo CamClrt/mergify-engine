@@ -23,8 +23,6 @@ The list of available commands is listed below, with their parameters:
 rebase
 ======
 
-|not enterprise plan tag|
-
    Runs the :ref:`rebase action` action.
 
 .. list-table::
@@ -35,6 +33,13 @@ rebase
     - ``@Mergifyio rebase``
   * - Example
     - ``@Mergifyio rebase``
+
+.. warning::
+
+   If the repository is bigger than 512 MB, the ``rebase`` action is only
+   available for `Essential and Premium Plan subscribers <https://mergify.io/pricing>`_.
+   |essential plan tag|
+   |premium plan tag|
 
 .. _update command:
 
@@ -56,8 +61,6 @@ update
 
 backport
 ========
-
-|not enterprise plan tag|
 
 Runs the :ref:`backport action` action.
 

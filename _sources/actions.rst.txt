@@ -47,8 +47,6 @@ e.g. ``{{author}}`` to assign the pull request to its author.
 backport
 =========
 
-|not enterprise plan tag|
-
 It is common for software to have (some of) their major versions maintained
 over an extended period. Developers usually create stable branches that are
 maintained for a while by cherry-picking patches from the development branch.
@@ -84,7 +82,7 @@ parameter:
        to.
    * - ``ignore_conflicts``
      - Boolean
-     - ``True``
+     - ``true``
      - Whether to create the pull requests even if they are conflicts when
        cherry-picking the commits.
    * - ``label_conflicts``
@@ -107,8 +105,6 @@ automatically delete the backport head branch that it created.
 copy
 ====
 
-|not enterprise plan tag|
-
 The ``copy`` action creates a copy of the pull request targetting other branches.
 
 .. list-table::
@@ -129,7 +125,7 @@ The ``copy`` action creates a copy of the pull request targetting other branches
      - The list of regexes to find branches the pull request should be copied to.
    * - ``ignore_conflicts``
      - Boolean
-     - ``True``
+     - ``true``
      - Whether to create the pull requests even if they are conflicts when
        cherry-picking the commits.
    * - ``label_conflicts``
@@ -165,6 +161,14 @@ The ``comment`` action adds a comment to the pull request.
      - :ref:`data type template`
      -
      - The message to write as a comment.
+   * - ``bot_account``
+     - :ref:`data type template`
+     -
+     - Mergify can impersonate a GitHub user to comment a pull request.
+       If no ``bot_account`` is set, Mergify will comment the pull request
+       itself.
+
+       |premium plan tag|
 
 .. _review action:
 
@@ -190,7 +194,7 @@ The ``review`` action reviews the pull request.
      -
      - The message to write as a comment.
    * - ``bot_account``
-     - string
+     - :ref:`data type template`
      -
      - Mergify can impersonate a GitHub user to review a pull request.
        If no ``bot_account`` is set, Mergify will review the pull request
@@ -228,9 +232,9 @@ that is the branch which hosts the commits. This only works if the branch is
 stored in the same repository that the pull request target, i.e., if the pull
 request comes from the same repository and not from a fork.
 
-This action takes no configuration options. The action will only happen if and
-when the pull request is closed or merged: you can decide what suits you best
-using :ref:`Conditions`.
+.. note::
+
+   The action will only happen if and when the pull request is closed or merged.
 
 .. list-table::
    :header-rows: 1
@@ -242,8 +246,8 @@ using :ref:`Conditions`.
      - Value Description
    * - ``force``
      - Boolean
-     - ``False``
-     - If set to ``True``, the branch will be deleted even if another pull
+     - ``false``
+     - If set to ``true``, the branch will be deleted even if another pull
        request depends on the head branch. GitHub will therefore close the
        dependent pull requests.
 
@@ -268,16 +272,16 @@ branch is rebased).
      - Value Description
    * - ``approved``
      - Boolean or list of string
-     - ``True``
-     - If set to ``True``, all the approving reviews will be removed when the
-       pull request is updated. If set to ``False``, nothing will be done. If
+     - ``true``
+     - If set to ``true``, all the approving reviews will be removed when the
+       pull request is updated. If set to ``false``, nothing will be done. If
        set to a list, each item should be the GitHub login of a user whose
        review will be removed.
    * - ``changes_requested``
      - Boolean or list of string
-     - ``True``
-     - If set to ``True``, all the reviews requesting changes will be removed
-       when the pull request is updated. If set to ``False``, nothing will be
+     - ``true``
+     - If set to ``true``, all the reviews requesting changes will be removed
+       when the pull request is updated. If set to ``false``, nothing will be
        done. If set to a list, each item should be the GitHub login of a user
        whose review will be removed.
    * - ``message``
@@ -370,17 +374,17 @@ The ``merge`` action merges the pull request into its base branch. The
    * - ``strict_method``
      - string
      - ``merge``
-     - Update method to use to update the pull request with its base branch
+     - Method to use to update the pull request with its base branch
        when :ref:`strict merge` is enabled. Possible values:
 
        * ``merge`` to merge the base branch into the pull request.
        * ``rebase`` to rebase the pull request against its base branch.
 
-       Note that the ``rebase`` method has many drawbacks, see :ref:`strict
+       Note that the ``rebase`` method has some drawbacks, see :ref:`strict
        rebase`.
 
    * - ``merge_bot_account``
-     - string
+     - :ref:`data type template`
      -
      - Mergify can impersonate a GitHub user to merge pull request.
        If no ``merge_bot_account`` is set, Mergify will merge the pull request
@@ -390,7 +394,7 @@ The ``merge`` action merges the pull request into its base branch. The
        |premium plan tag|
 
    * - ``update_bot_account``
-     - string
+     - :ref:`data type template`
      -
      - For certain actions, such as rebasing branches, Mergify has to
        impersonate a GitHub user. You can specify the account to use with this
@@ -403,7 +407,7 @@ The ``merge`` action merges the pull request into its base branch. The
    * - ``priority``
      - 1 <= integer <= 10000 or ``low`` or ``medium`` or ``high``
      - ``medium``
-     - This set the priority of the pull request in the queue when ``smart``
+     - This sets the priority of the pull request in the queue when ``smart``
        :ref:`strict merge` is enabled. The pull request with the highest priority is merged first.
        ``low``, ``medium``, ``high`` are aliases for ``1000``, ``2000``, ``3000``.
 
@@ -507,6 +511,54 @@ Using the ``rebase`` method for the strict merge has many drawbacks:
 
 .. _request_reviews action:
 
+queue
+=====
+
+|premium plan tag|
+|beta tag|
+
+The ``queue`` action moves the pull request into one of the merge queue defined
+in ``queue_rules``. The ``queue`` action takes the following parameter:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 1 1 1 3
+
+   * - Key Name
+     - Value Type
+     - Default
+     - Value Description
+   * - ``name``
+     - string
+     -
+     - The name of the merge queue where to move the pull request.
+   * - ``merge_bot_account``
+     - string
+     -
+     - Mergify can impersonate a GitHub user to merge pull request.
+       If no ``merge_bot_account`` is set, Mergify will merge the pull request
+       itself. The user account **must** have already been
+       logged in Mergify dashboard once and have **write** or **maintain** permission.
+   * - ``priority``
+     - 1 <= integer <= 10000 or ``low`` or ``medium`` or ``high``
+     - ``medium``
+     - This sets the priority of the pull request in the queued. The pull
+       request with the highest priority is merged first.
+       ``low``, ``medium``, ``high`` are aliases for ``1000``, ``2000``, ``3000``.
+   * - ``commit_message``
+     - string
+     - ``default``
+     - Defines what commit message to use when merging using the ``squash`` or
+       ``merge`` method. Possible values are:
+
+       * ``default`` to use the default commit message provided by GitHub
+         or defined in the pull request body (see :ref:`commit message`).
+
+       * ``title+body`` means to use the title and body from the pull request
+         itself as the commit message. The pull request number will be added to
+         end of the title.
+
+
 request_reviews
 ===============
 
@@ -559,12 +611,12 @@ The ``rebase`` action will rebase the pull request against its base branch.
     - Default
     - Value Description
 
-  * - ``update_bot_account``
-    - string
+  * - ``bot_account``
+    - :ref:`data type template`
     -
     - For certain actions, such as rebasing branches, Mergify has to
       impersonate a GitHub user. You can specify the account to use with this
-      option. If no ``update_bot_account`` is set, Mergify picks randomly one of the
+      option. If no ``bot_account`` is set, Mergify picks randomly one of the
       organization users instead. The user account **must** have already been
       logged in Mergify dashboard once.
 
@@ -573,12 +625,24 @@ The ``rebase`` action will rebase the pull request against its base branch.
    Be aware that rebasing force-pushes the pull request head branch: any change
    done to that branch while Mergify is rebasing will be lost.
 
+.. warning::
+
+   If the repository is bigger than 512 MB, the ``rebase`` action is only
+   available for `Essential and Premium  Plan subscribers <https://mergify.io/pricing>`_.
+   |essential plan tag|
+   |premium plan tag|
+
 .. _update action:
 
 update
 ======
 
 The ``update`` action updates the pull request against its base branch.
+
+.. code-block:: yaml
+
+    actions:
+      update: {}
 
 
 post_check
@@ -616,7 +680,7 @@ benefit from any pull request attributes e.g. ``{{author}}`` and also these
 additional variables:
 
     * ``{{ check_rule_name }}`` the name of the rule that triggered this action.
-    * ``{{ check_succeed }}`` will be ``True`` if all conditions matches otherwise ``False``
+    * ``{{ check_succeed }}`` is ``True`` if all conditions matches otherwise ``False``
     * ``{{ check_conditions }}`` the list of all conditions with a checkbox marked if the condition match
 
 
