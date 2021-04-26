@@ -27,9 +27,16 @@ body div.body {
     }
 }
 
+div.graphviz {
+    text-align: center;
+}
+
+div.graphviz > img.graphviz {
+    max-width: 80%;
+}
+
 img.img-fluid {
-    margin-top: 1.5em;
-    margin-bottom: 1.5em;
+    margin-bottom: 1rem;
 }
 
 .figure {
@@ -57,42 +64,43 @@ nav.navbar {
     padding-bottom: 1.1em;
 }
 
-#exCollapsingNavbar2 {
-    /* So the links are stuck to the logo */
-    padding-left: 2em;
+#top-navbar {
+    font-weight: 200;
+    text-transform: uppercase;
 }
 
 .navbar .navbar-brand img.logo {
     /* needed so the links in the navbar are aligned with top-left logo */
-    margin-top: -8px;
+    margin-top: -10px;
     height: 42px;
 }
 
+.navbar-light .navbar-nav {
+    margin-right: 1.5em;
+}
+
 .navbar-light .navbar-nav .nav-link {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
 }
 
 /* Fix headers for scrolling */
 
-.section > h1 {
+section > section {
+  margin-bottom: 0.75rem;
+}
+
+section > h1 {
     padding-top: 80px;
     margin-top: -80px;
 }
 
-.section > h2,
-.section > h3,
-.section > h4,
-.section > h5,
-.section > h6 {
+section > h2,
+section > h3,
+section > h4,
+section > h5,
+section > h6 {
     padding-top: 80px;
     margin-top: -50px;
-}
-
-/* Headers override from bootstrap */
-/* smaller h3 so you can see them out of h2 */
-
-h3 {
-    font-size: 1.5rem;
 }
 
 /* Sidebar styles */
@@ -120,7 +128,8 @@ div.document {
         margin-top: -1em;
         max-height: 100vh;
         border-right: 1px solid rgb(236, 238, 239);
-        overflow: scroll;
+        overflow-x: auto;
+        overflow-y: scroll;
     }
 }
 
@@ -184,6 +193,17 @@ div.admonition p.admonition-title {
 p.admonition-title:after {
     content: "";
 }
+
+div.alert {
+    /* At least needed to keep feature tag inside alerts div */
+    overflow: hidden;
+    float: right;
+    max-width: 33%;
+    clear: both;
+    margin-left: 1em;
+    margin-bottom: 1em;
+}
+
 
 div.alert > p.admonition-title {
     font-weight: bold;
@@ -257,12 +277,19 @@ Code-block style
 }
 
 /* Table */
-.table {
-    width: auto;
+table {
+    margin-top: 1rem;
 }
 
-tr.row-odd {
-    background-color: rgb(255, 255, 255);
+tbody {
+    border-left: solid 1px rgb(236, 238, 239);
+    border-right: solid 1px rgb(236, 238, 239);
+    border-bottom: solid 1px rgb(236, 238, 239);
+}
+
+/* Not really necessary but helps with alignment the border of tbody */
+thead {
+    border: solid 1px #034870;
 }
 
 div.icon {
@@ -307,4 +334,25 @@ a.headerlink {
     vertical-align: middle;
     font-size: 0.6em;
     margin-left: 0.25em;
+}
+
+/* Figure */
+div.figure p.caption {
+    margin-top: -1rem;
+    font-style: italic;
+    font-size: 90%;
+    color: #666;
+}
+
+/* Feature Tag */
+.feature-tag {
+    float: right !important;
+    margin-left: 1em;
+    margin-bottom: 1em;
+    clear: both;
+}
+
+.alert .feature-tag:first-of-type {
+    /* Make sure those go upper in div alert */
+    margin-top: -2.5em;
 }

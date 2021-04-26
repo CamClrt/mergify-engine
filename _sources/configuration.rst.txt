@@ -16,8 +16,7 @@ Mergify uses the configuration file that is:
 - The file named ``.mergify.yml``, or, as a fallback, ``.mergify/config.yml`` or ``.github/mergify.yml``
   from the root directory.
 
-- In the the default repository branch configured on GitHub — usually
-  ``master``.
+- In the default repository branch configured on GitHub — usually ``master``.
 
 Format
 ------
@@ -26,8 +25,11 @@ Here's what you need to know about the file format:
 
 - The file format is `YAML <http://yaml.org/>`_.
 
-- The file main type is a dictionary whose only key is named
-  ``pull_request_rules``.
+- The file main type is a dictionary whose keys are named
+  ``pull_request_rules`` and ``defaults``.
+
+Pull Request Rules
+~~~~~~~~~~~~~~~~~~
 
 - The value type of the ``pull_request_rules`` is list.
 
@@ -47,7 +49,7 @@ Each dictionary must have the following keys:
      - The name of the rule. This is not used by the engine directly, but is
        used when reporting information about a rule.
    * - ``conditions``
-     - array of :ref:`Conditions`
+     - list of :ref:`Conditions`
      - A list of :ref:`Conditions` string that must match against the pull
        request for the rule to be applied.
    * - ``actions``
@@ -60,17 +62,73 @@ and, therefore, the actions are executed in that same order.
 
 See :ref:`Examples` for configuration file examples.
 
+Queue Rules
+~~~~~~~~~~~
+
+- The value type of the ``queue_rules`` is list.
+
+- Each entry in ``queue_rules`` must be a dictionary.
+
+See :ref:`queue rules` for the complete list and description of options.
+
+Defaults
+~~~~~~~~
+
+- The value type of ``defaults`` is a dictionary.
+
+This dictionary must have the following key:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 1 1 2
+
+   * - Key Name
+     - Value Type
+     - Value Description
+   * - ``actions``
+     - dictionary of :ref:`Actions`
+     - A dictionary made of :ref:`Actions` whose configuration will be used by default.
+
+The ``defaults`` section is used to define default configuration valued for actions run by pull request rules and by :ref:`Commands`.
+If the options are defined in ``pull_request_rules`` they are used, otherwise, the values set in ``defaults`` are used.
+
+For example:
+
+.. code-block:: yaml
+
+  defaults:
+    actions:
+      comment:
+        bot_account: Autobot
+
+  pull_request_rules:
+    - name: comment with default
+      conditions:
+        - label=comment
+      actions:
+        comment:
+          message: I 💙 Mergify
+
+The configuration above is the same as below:
+
+.. code-block:: yaml
+
+  pull_request_rules:
+    - name: comment with default
+      conditions:
+        - label=comment
+      actions:
+        comment:
+          message: I 💙 Mergify
+          bot_account: Autobot
+
 Data Types
 ----------
 
-Regular Expression
-~~~~~~~~~~~~~~~~~~
+.. _regular expressions:
 
-In :ref:`Conditions` you can use regular expression with matching :ref:`Operators`.
-
-Mergify leverages `Python regular expression <https://docs.python.org/3/library/re.html>`_ to match rules.
-
-See the specific :ref:`Examples` for configuration file examples.
+Regular Expressions
+~~~~~~~~~~~~~~~~~~~
 
 .. tip::
 
@@ -78,10 +136,45 @@ See the specific :ref:`Examples` for configuration file examples.
   <http://www.pyregex.com>`_ or `Pythex <https://pythex.org/>`_ to test your
   regular expressions.
 
+You can use regular expression with matching :ref:`operators <Operators>` in
+your :ref:`conditions <Conditions>` .
+
+Mergify leverages `Python regular expressions
+<https://docs.python.org/3/library/re.html>`_ to match rules.
+
+
+Examples
+++++++++
+
+.. code-block:: yaml
+
+    pull_request_rules:
+      - name: add python label if a Python file is modified
+        conditions:
+          - files~=\.py$
+        actions:
+          label:
+            add:
+              - python
+
+      - name: automatic merge for master when the title does not contain “WIP” (ignoring case)
+        conditions:
+          - base=master
+          - -title~=(?i)wip
+        actions:
+          merge:
+            method: merge
+
 .. _data type template:
 
 Template
 ~~~~~~~~
+
+.. note::
+
+   You need to replace the ``-`` character by ``_`` from the :ref:`pull request
+   attribute <attributes>` names when using templates. The ``-`` is not a valid
+   character for variable names in Jinja2 template.
 
 The template data type is a regular string that is rendered using the `Jinja2
 template language <https://jinja.palletsprojects.com/templates/>`_.
@@ -107,11 +200,6 @@ will render to:
 when used in your configuration file — considering the pull request author
 login is ``jd``.
 
-.. note::
-
-   You need to replace the ``-`` character by ``_`` from the :ref:`pull request
-   attribute <attributes>` names when using templates. The ``-`` is not a valid
-   character for variable names in Jinja2 template.
 
 Validation
 ----------

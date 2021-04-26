@@ -19,7 +19,7 @@ $(function() {
   $(".footer").addClass("col-md-12");
 
   // Tables
-  $("table.docutils").addClass("table table-sm table-bordered table-striped")
+  $("table.docutils").addClass("table table-striped").removeClass("docutils")
     .find("thead")
     .addClass("thead-dark")
 
@@ -29,9 +29,12 @@ $(function() {
     .filter(".note").removeClass("note").addClass("alert-primary").children('p.admonition-title').prepend('<div class="icon"></div>').end().end()
     .filter(".warning").removeClass("warning").addClass("alert-warning").children('p.admonition-title').prepend('<div class="icon"></div>').end().end()
     .filter(".tip").removeClass("tip").addClass("alert-info").children('p.admonition-title').prepend('<div class="icon"></div>').end().end()
+    .filter(".important").removeClass("important").addClass("alert-primary").children('p.admonition-title').prepend('<div class="icon"></div>').end().end()
 
   // images
   $(".documentwrapper img").addClass("img-fluid");
+  // do not set img-fluid on image in tables
+  $(".documentwrapper table img").removeClass("img-fluid");
 
   // Fix embedded ToC (example page)
   $("div.topic > ul").addClass("list-group");
@@ -44,6 +47,16 @@ $(function() {
   // Remove the toctree on the frontpage
   // Hiding it is not enough
   $(".toctree-wrapper").remove();
+
+  // Sphinx adds an empty <p></p> before feature tag substitution on tables: remove it
+  $("div.feature-tag").prev("p").each(
+    function () {
+      var p = $(this);
+      if(p.text() == "") {
+        p.remove();
+      }
+    }
+  );
 });
 
 
